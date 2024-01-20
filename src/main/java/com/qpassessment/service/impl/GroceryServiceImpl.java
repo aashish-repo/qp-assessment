@@ -70,6 +70,13 @@ public class GroceryServiceImpl implements GroceryService {
         return new ApiResponse(HttpStatus.OK.toString(),"Success");
     }
 
+    /**
+     * Included the pagination, as grocery item list can be long, we can include filters and search functionality as well
+     * @param pageNo
+     * @param pageSize
+     * @return
+     * @throws Exception
+     */
     @Override
     public ItemListResponse fetchItems(Integer pageNo, Integer pageSize) throws Exception {
         if(pageNo < 1){

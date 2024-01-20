@@ -5,6 +5,11 @@ import com.qpassessment.model.requests.AddItemRequest;
 import com.qpassessment.model.requests.UpdateItemRequest;
 import com.qpassessment.model.response.ItemListResponse;
 
+/**
+ * Basic crud operation on grocery items
+ */
+
+
 public interface GroceryService {
 
     ApiResponse addItem(AddItemRequest addItemRequest);
