@@ -1,6 +1,7 @@
 package com.qpassessment.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qpassessment.constants.OrderStatus;
 import com.qpassessment.entity.GroceryItem;
@@ -59,10 +60,30 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("There is no pending order");
         }
 
+        updateItemStock(order.getItemWithQuantity());
+
         order.setOrderStatus(OrderStatus.SUCCESS);
         orderRepository.save(order);
 
         return new ApiResponse(HttpStatus.OK.toString(),"Success");
+    }
+
+
+    //after place the oder, need to update the item stock
+    private void updateItemStock(String itemWithQuantity){
+
+        List<OrderRequest> orderRequests = new ObjectMapper().convertValue(itemWithQuantity, new TypeReference<List<OrderRequest>>() {});
+        for(OrderRequest orderRequest : orderRequests){
+            try {
+                GroceryItem groceryItem = groceryRepository.findByItemKey(orderRequest.getItem()).get();
+                groceryItem.setCurrentStock(groceryItem.getCurrentStock() - orderRequest.getQuantity());
+                groceryRepository.save(groceryItem);
+            }
+            catch (Exception e){
+                //error while updating the inventory level
+            }
+        }
+
     }
 
     private Order buildFreshOrder(OrderRequest orderRequest, Integer userId) {
@@ -77,6 +98,7 @@ public class BookingServiceImpl implements BookingService {
         return  order;
     }
 
+    // check item is in stock or not
     private boolean isItemInStock(OrderRequest orderRequest){
         Optional<GroceryItem> groceryItem =groceryRepository.findByItemKey(orderRequest.getItem());
         if(groceryItem.isEmpty()){
